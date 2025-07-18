@@ -1,40 +1,55 @@
 import axios from 'axios'
 
-const API = 'http://localhost:5000/api/tasks'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/tasks'
 
-const getToken = () => localStorage.getItem('token')
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token')
+  return { Authorization: `Bearer ${token}` }
+}
 
 export const fetchTasks = async () => {
-  const res = await axios.get(API, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  })
-  return res.data
+  try {
+    const res = await axios.get(API, {
+      headers: getAuthHeaders()
+    })
+    return res.data
+  } catch (err) {
+    console.error('Error al obtener tareas:', err)
+    throw err
+  }
 }
 
 export const createTask = async (title) => {
-  const res = await axios.post(API, { title }, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  })
-  return res.data
+  try {
+    const res = await axios.post(API, { title }, {
+      headers: getAuthHeaders()
+    })
+    return res.data
+  } catch (err) {
+    console.error('Error al crear tarea:', err)
+    throw err
+  }
 }
 
 export const deleteTask = async (id) => {
-  await axios.delete(`${API}/${id}`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  })
+  try {
+    await axios.delete(`${API}/${id}`, {
+      headers: getAuthHeaders()
+    })
+  } catch (err) {
+    console.error('Error al eliminar tarea:', err)
+    throw err
+  }
 }
 
 export const updateTask = async (id, data) => {
-  const res = await axios.put(`${API}/${id}`, data, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  })
-  return res.data
+  try {
+    const res = await axios.put(`${API}/${id}`, data, {
+      headers: getAuthHeaders()
+    })
+    return res.data
+  } catch (err) {
+    console.error('Error al actualizar tarea:', err)
+    throw err
+  }
 }

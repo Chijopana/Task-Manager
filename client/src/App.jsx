@@ -3,6 +3,7 @@ import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import PrivateRoute from './components/PrivateRoute'
+import AuthPage from './pages/AuthPage'
 import './index.css'
 
 function App() {
@@ -17,8 +18,8 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<Navigate to="/login" />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
