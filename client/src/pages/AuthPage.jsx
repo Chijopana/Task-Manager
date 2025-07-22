@@ -31,6 +31,7 @@ export default function AuthPage() {
       const res = await axios.post(url, { username, password })
       if (mode === 'login') {
         localStorage.setItem('token', res.data.token)
+        localStorage.setItem('username', res.data.username) // Guarda username también
         toast.success('Login exitoso! Redirigiendo...')
         setTimeout(() => navigate('/'), 1500)
       } else {
@@ -64,37 +65,37 @@ export default function AuthPage() {
 
           {/* Username input */}
           <label className="block relative">
-  <span className="sr-only">Usuario</span>
-  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-  <input
-    type="text"
-    placeholder="Usuario"
-    value={username}
-    onChange={(e) => setUsername(e.target.value)}
-    required
-    minLength={3}
-    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-    autoComplete="username"
-    disabled={loading}
-  />
-</label>
+            <span className="sr-only">Usuario</span>
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <input
+              type="text"
+              placeholder="Usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              minLength={3}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              autoComplete="username"
+              disabled={loading}
+            />
+          </label>
 
           {/* Password input */}
           <label className="block relative">
-  <span className="sr-only">Contraseña</span>
-  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-  <input
-    type="password"
-    placeholder="Contraseña"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    required
-    minLength={6}
-    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-    disabled={loading}
-  />
-</label>
+            <span className="sr-only">Contraseña</span>
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              disabled={loading}
+            />
+          </label>
 
           <button
             type="submit"
