@@ -37,7 +37,7 @@ export default function HomePage() {
   <span className="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded-lg text-sm">
     👋
   </span>
-  Bienvenido/a , <span className="text-blue-600">{username}</span>
+  Bienvenido/a, <span className="text-blue-600">{username}</span>
 </h1>
           <button
   onClick={handleLogout}
