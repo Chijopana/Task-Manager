@@ -1,172 +1,192 @@
-import { useState } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import toast, { Toaster } from 'react-hot-toast'
-import { User, Lock } from "lucide-react"
-
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 1118.878 6.196M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-)
-const LockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11V7a4 4 0 00-8 0v4m12 0v4a4 4 0 01-8 0v-4m8-4h2a2 2 0 012 2v6a2 2 0 01-2 2h-2a2 2 0 01-2-2v-6a2 2 0 012-2z" />
-  </svg>
-)
+import { User, Lock, Eye, EyeOff, Loader2, CheckSquare } from 'lucide-react'
+import { api, errorMessage } from '../lib/api'
+import { saveSession } from '../lib/auth'
+import { useTheme } from '../hooks/useTheme'
+import ThemeToggle from '../components/ThemeToggle'
 
 export default function AuthPage() {
-  const [mode, setMode] = useState('login') // or 'register'
+  const [mode, setMode] = useState('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { isDark, toggleTheme } = useTheme()
+  const reduceMotion = useReducedMotion()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const isLogin = mode === 'login'
+
+  // The API interceptor redirects here with ?expired=1 when a session dies.
+  useEffect(() => {
+    if (searchParams.get('expired') !== '1') return
+    toast('Tu sesión ha caducado, vuelve a entrar', { icon: '🔒' })
+    searchParams.delete('expired')
+    setSearchParams(searchParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
     setLoading(true)
-    const url = `http://localhost:5000/api/users/${mode}`
+
     try {
-      const res = await axios.post(url, { username, password })
-      if (mode === 'login') {
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('username', res.data.username) // Guarda username también
-        toast.success('Login exitoso! Redirigiendo...')
-        setTimeout(() => navigate('/'), 1500)
-      } else {
-        toast.success('Registro exitoso! Ahora inicia sesión.')
-        setMode('login')
-      }
+      const { data } = await api.post(`/api/users/${mode}`, {
+        username: username.trim(),
+        password,
+      })
+
+      // Registering now returns a token too, so there is no reason to send the
+      // user back to type the same credentials again.
+      saveSession(data)
+      toast.success(isLogin ? 'Bienvenido de nuevo' : 'Cuenta creada')
+      navigate('/', { replace: true })
     } catch (error) {
-      toast.error(error.response?.data?.msg || 'Error en la operación')
+      toast.error(errorMessage(error, 'No se pudo completar la operación'))
     } finally {
       setLoading(false)
     }
   }
 
+  const switchMode = () => {
+    setMode(isLogin ? 'register' : 'login')
+    setPassword('')
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 font-sans">
-      <Toaster position="top-center" />
-      <AnimatePresence mode="wait">
-        <motion.form
-          key={mode}
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4 py-10">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: 'var(--surface)',
+            color: 'var(--text)',
+            border: '1px solid var(--border)',
+          },
+        }}
+      />
+
+      <div className="absolute right-4 top-4">
+        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+      </div>
+
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+        animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md"
+      >
+        <div className="mb-8 text-center">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-on-accent">
+            <CheckSquare className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <h1 className="mt-4 text-2xl font-bold text-text">Gestor de tareas</h1>
+          <p className="mt-1 text-muted">
+            {isLogin
+              ? 'Entra para ver tus tareas'
+              : 'Crea una cuenta para empezar'}
+          </p>
+        </div>
+
+        <form
           onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.35 }}
-          className="bg-white shadow-lg rounded-xl max-w-md w-full p-10 space-y-6 relative"
-          aria-live="polite"
+          className="space-y-5 rounded-2xl border border-border bg-surface p-8 shadow-sm"
         >
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            {mode === 'login' ? 'Iniciar Sesión' : 'Registro'}
-          </h2>
+          <div>
+            <label
+              htmlFor="username"
+              className="mb-1.5 block text-sm font-medium text-text"
+            >
+              Usuario
+            </label>
+            <div className="relative">
+              <User
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
+                aria-hidden="true"
+              />
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                minLength={3}
+                maxLength={30}
+                autoComplete="username"
+                disabled={loading}
+                placeholder="tu usuario"
+                className="w-full rounded-lg border border-border bg-surface py-3 pl-10 pr-4 text-text transition-colors placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/40"
+              />
+            </div>
+          </div>
 
-          {/* Username input */}
-          <label className="block relative">
-            <span className="sr-only">Usuario</span>
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-            <input
-              type="text"
-              placeholder="Usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              minLength={3}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              autoComplete="username"
-              disabled={loading}
-            />
-          </label>
-
-          {/* Password input */}
-          <label className="block relative">
-            <span className="sr-only">Contraseña</span>
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              disabled={loading}
-            />
-          </label>
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-sm font-medium text-text"
+            >
+              Contraseña
+            </label>
+            <div className="relative">
+              <Lock
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
+                aria-hidden="true"
+              />
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                disabled={loading}
+                placeholder="mínimo 6 caracteres"
+                className="w-full rounded-lg border border-border bg-surface py-3 pl-10 pr-11 text-text transition-colors placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-ring/40"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={
+                  showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-faint transition-colors hover:text-text"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition-colors
-              ${mode === 'login' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}
-              ${loading ? 'opacity-60 cursor-not-allowed' : ''}
-            `}
             aria-busy={loading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3 font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? (
-              <svg
-                className="animate-spin h-6 w-6 mx-auto text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
-              </svg>
-            ) : mode === 'login' ? 'Entrar' : 'Registrarse'}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            {isLogin ? 'Entrar' : 'Crear cuenta'}
           </button>
 
-          <p className="text-center text-sm text-gray-600 select-none">
-            {mode === 'login' ? (
-              <>
-                ¿No tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUsername('')
-                    setPassword('')
-                    setMode('register')
-                  }}
-                  className="text-blue-600 hover:underline font-semibold"
-                  disabled={loading}
-                >
-                  Regístrate
-                </button>
-              </>
-            ) : (
-              <>
-                ¿Ya tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUsername('')
-                    setPassword('')
-                    setMode('login')
-                  }}
-                  className="text-green-600 hover:underline font-semibold"
-                  disabled={loading}
-                >
-                  Inicia sesión
-                </button>
-              </>
-            )}
+          <p className="text-center text-sm text-muted">
+            {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
+            <button
+              type="button"
+              onClick={switchMode}
+              disabled={loading}
+              className="font-semibold text-accent hover:underline"
+            >
+              {isLogin ? 'Regístrate' : 'Inicia sesión'}
+            </button>
           </p>
-        </motion.form>
-      </AnimatePresence>
+        </form>
+      </motion.div>
     </div>
   )
 }

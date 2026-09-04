@@ -1,23 +1,37 @@
 {
-  "name": "server",
+  "name": "task-manager-server",
   "version": "1.0.0",
+  "description": "REST API for the Task Manager app: JWT auth and per-user tasks",
   "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-  "dev": "nodemon index.js"
-},
-  "keywords": [],
-  "author": "",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "dev:memory": "node scripts/dev-with-memory-db.js",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "jwt"
+  ],
+  "author": "Jose Blondel",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "mongodb-memory-server": "^11.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.2.2"
   }
 }

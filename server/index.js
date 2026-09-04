@@ -1,31 +1,33 @@
-// server/index.js
-const express = require('express')
 const mongoose = require('mongoose')
-const cors = require('cors')
-const dotenv = require('dotenv')
 
-dotenv.config()
+const env = require('./config/env')
+const createApp = require('./app')
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+async function start() {
+  try {
+    await mongoose.connect(env.mongoUri)
+    console.log('✔ Conectado a MongoDB')
+  } catch (err) {
+    console.error('✖ No se pudo conectar a MongoDB:', err.message)
+    process.exit(1)
+  }
 
-app.get('/', (req, res) => {
-  res.send('Servidor funcionando 🚀')
-})
+  const app = createApp()
+  const server = app.listen(env.port, () =>
+    console.log(`✔ API escuchando en el puerto ${env.port}`),
+  )
 
-const PORT = process.env.PORT || 5000
+  // Let in-flight requests finish when the host restarts the service.
+  const shutdown = (signal) => {
+    console.log(`\n${signal} recibido, cerrando...`)
+    server.close(async () => {
+      await mongoose.connection.close(false)
+      process.exit(0)
+    })
+  }
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  app.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`))
-}).catch(err => console.error('Error conectando a MongoDB', err))
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
+}
 
-const userRoutes = require('./routes/userRoutes')
-
-app.use('/api/users', userRoutes)
-
-const taskRoutes = require('./routes/taskRoutes')
-app.use('/api/tasks', taskRoutes)
+start()

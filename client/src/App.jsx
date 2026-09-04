@@ -1,10 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import RegisterPage from './pages/RegisterPage'
-import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
-import PrivateRoute from './components/PrivateRoute'
 import AuthPage from './pages/AuthPage'
-import './index.css'
+import PrivateRoute from './components/PrivateRoute'
 
 function App() {
   return (
@@ -19,8 +16,8 @@ function App() {
           }
         />
         <Route path="/login" element={<AuthPage />} />
-        <Route path="/register" element={<Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/register" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )

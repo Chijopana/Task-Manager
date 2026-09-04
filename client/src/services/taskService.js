@@ -1,55 +1,45 @@
-import axios from 'axios'
+import { api, errorMessage } from '../lib/api'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/tasks'
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token')
-  return { Authorization: `Bearer ${token}` }
+/**
+ * Attaches a message the UI can show directly, so components don't have to dig
+ * through the axios error shape.
+ */
+function withUserMessage(error, fallback) {
+  error.userMessage = errorMessage(error, fallback)
+  return error
 }
 
-export const fetchTasks = async () => {
+export async function fetchTasks() {
   try {
-    const res = await axios.get(API, {
-      headers: getAuthHeaders()
-    })
-    return res.data
+    const { data } = await api.get('/api/tasks')
+    return data
   } catch (err) {
-    console.error('Error al obtener tareas:', err)
-    throw err
+    throw withUserMessage(err, 'No se pudieron cargar las tareas')
   }
 }
 
-export const createTask = async (title) => {
+export async function createTask(title) {
   try {
-    const res = await axios.post(API, { title }, {
-      headers: getAuthHeaders()
-    })
-    return res.data
+    const { data } = await api.post('/api/tasks', { title })
+    return data
   } catch (err) {
-    console.error('Error al crear tarea:', err)
-    throw err
+    throw withUserMessage(err, 'No se pudo crear la tarea')
   }
 }
 
-export const deleteTask = async (id) => {
+export async function updateTask(id, changes) {
   try {
-    await axios.delete(`${API}/${id}`, {
-      headers: getAuthHeaders()
-    })
+    const { data } = await api.put(`/api/tasks/${id}`, changes)
+    return data
   } catch (err) {
-    console.error('Error al eliminar tarea:', err)
-    throw err
+    throw withUserMessage(err, 'No se pudo actualizar la tarea')
   }
 }
 
-export const updateTask = async (id, data) => {
+export async function deleteTask(id) {
   try {
-    const res = await axios.put(`${API}/${id}`, data, {
-      headers: getAuthHeaders()
-    })
-    return res.data
+    await api.delete(`/api/tasks/${id}`)
   } catch (err) {
-    console.error('Error al actualizar tarea:', err)
-    throw err
+    throw withUserMessage(err, 'No se pudo eliminar la tarea')
   }
 }
