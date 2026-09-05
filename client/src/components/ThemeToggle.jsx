@@ -1,27 +1,22 @@
-import { useEffect, useState } from "react"
+import { Moon, Sun } from 'lucide-react'
 
-export default function ThemeToggle() {
-  const [dark, setDark] = useState(
-    () => localStorage.getItem("theme") === "dark"
-  )
-
-  useEffect(() => {
-    const root = window.document.documentElement
-    if (dark) {
-      root.classList.add("dark")
-      localStorage.setItem("theme", "dark")
-    } else {
-      root.classList.remove("dark")
-      localStorage.setItem("theme", "light")
-    }
-  }, [dark])
+/**
+ * Theme state lives in useTheme so a single owner writes the class and the
+ * stored preference; this is just the control.
+ */
+export default function ThemeToggle({ isDark, onToggle }) {
+  const label = isDark ? 'Activar modo claro' : 'Activar modo oscuro'
 
   return (
     <button
-      onClick={() => setDark(!dark)}
-      className="fixed top-4 right-4 bg-gray-200 dark:bg-gray-700 text-black dark:text-white px-3 py-1 rounded shadow-md transition"
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      aria-pressed={isDark}
+      title={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-muted transition-colors hover:border-border-strong hover:text-accent"
     >
-      {dark ? "☀️ Claro" : "🌙 Oscuro"}
+      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
   )
 }

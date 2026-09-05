@@ -1,18 +1,21 @@
-import * as React from "react"
 import { cva } from "class-variance-authority"
 import { cn } from "./utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700",
-        ghost: "bg-transparent hover:bg-gray-100",
+        default: "bg-accent text-on-accent hover:opacity-90",
+        outline:
+          "border border-border bg-surface text-text hover:border-border-strong",
+        ghost: "bg-transparent text-muted hover:bg-surface-2 hover:text-text",
+        danger: "bg-transparent text-danger hover:bg-danger/10",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        icon: "h-10 w-10",
+        default: "h-10 px-4",
+        sm: "h-8 px-3 text-xs",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {

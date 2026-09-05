@@ -1,14 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-    <title>Vite + React</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Gestor de tareas full-stack con autenticación JWT. React, Node.js, Express y MongoDB."
+    />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <!-- Applies the saved theme before first paint so returning users in dark
+         mode never see a flash of the light one. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme')
+          var dark = stored
+            ? stored === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+          if (dark) document.documentElement.classList.add('dark')
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (e) {
+          /* storage unavailable, fall back to light */
+        }
+      })()
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Gestor de tareas</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      Esta aplicación necesita JavaScript activado para funcionar.
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

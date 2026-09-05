@@ -1,59 +1,64 @@
-// src/pages/HomePage.jsx
-import TaskManager from '../components/TaskManager'
+import { useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { useEffect, useState } from 'react'
-import jwtDecode from 'jwt-decode'
 import { LogOut } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
+import TaskManager from '../components/TaskManager'
+import ThemeToggle from '../components/ThemeToggle'
+import { clearSession, getUsername } from '../lib/auth'
+import { useTheme } from '../hooks/useTheme'
 
 export default function HomePage() {
-  const [username, setUsername] = useState('')
-
-  useEffect(() => {
-  const storedUsername = localStorage.getItem('username')
-  if (storedUsername) {
-    setUsername(storedUsername)
-  } else {
-    setUsername('Usuario')
-  }
-}, [])
+  const navigate = useNavigate()
+  const { isDark, toggleTheme } = useTheme()
+  const reduceMotion = useReducedMotion()
+  const username = getUsername() || 'Usuario'
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    window.location.href = '/login'
+    clearSession()
+    navigate('/login', { replace: true })
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 dark:from-zinc-900 dark:to-zinc-800 flex items-center justify-center px-4">
-      <Toaster position="top-center" />
-      <motion.div
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="w-full max-w-5xl bg-white p-8 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-700"
->
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-  <span className="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded-lg text-sm">
-    👋
-  </span>
-  Bienvenido/a, <span className="text-blue-600">{username}</span>
-</h1>
-          <button
-  onClick={handleLogout}
-  className="flex items-center gap-2 text-sm px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition"
->
-  <LogOut className="w-4 h-4" />
-  Cerrar sesión
-</button>
-        </div>
+    <div className="min-h-screen bg-bg px-4 py-8">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: 'var(--surface)',
+            color: 'var(--text)',
+            border: '1px solid var(--border)',
+          },
+        }}
+      />
 
-        <h2 className="text-xl font-semibold text-center relative before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-16 before:h-1 before:bg-blue-500 before:rounded-full mb-6">
-  Gestor de Tareas
-</h2>
+      <motion.main
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="mx-auto w-full max-w-3xl"
+      >
+        <header className="mb-8 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm text-muted">Hola de nuevo,</p>
+            <h1 className="truncate text-2xl font-bold text-text">{username}</h1>
+          </div>
 
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-semibold text-muted transition-colors hover:border-danger/40 hover:text-danger"
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              Salir
+            </button>
+          </div>
+        </header>
+
+        <h2 className="mb-4 text-lg font-semibold text-text">Mis tareas</h2>
         <TaskManager />
-      </motion.div>
+      </motion.main>
     </div>
   )
 }
