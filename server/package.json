@@ -1,25 +1,23 @@
 {
-  "name": "task-manager-server",
-  "version": "1.0.0",
-  "description": "REST API for the Task Manager app: JWT auth and per-user tasks",
-  "main": "index.js",
+  "name": "@task-manager/server",
+  "version": "2.0.0",
+  "private": true,
+  "description": "API REST del gestor de tareas: autenticación JWT y tareas por usuario",
+  "main": "dist/index.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "dev:memory": "node scripts/dev-with-memory-db.js",
-    "test": "node --test \"tests/**/*.test.js\""
+    "dev": "tsx watch src/index.ts",
+    "dev:memory": "tsx src/scripts/dev-with-memory-db.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "express",
-    "mongodb",
-    "jwt"
-  ],
-  "author": "Jose Blondel",
-  "license": "ISC",
   "dependencies": {
+    "@task-manager/shared": "2.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
@@ -27,11 +25,19 @@
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.4"
+    "mongoose": "^8.16.4",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.0",
+    "@types/supertest": "^6.0.2",
     "mongodb-memory-server": "^11.2.0",
-    "nodemon": "^3.1.10",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
   }
 }

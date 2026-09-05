@@ -1,0 +1,27 @@
+# Despliegue de la API en Render. Con este archivo en el repositorio, el
+# servicio se reconstruye igual desde cero y no depende de ajustes hechos a mano
+# en el panel.
+services:
+  - type: web
+    name: task-manager-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    # El repositorio es un monorepo con workspaces: se instala desde la raíz.
+    rootDir: .
+    buildCommand: npm ci && npm run build --workspace=@task-manager/shared && npm run build --workspace=@task-manager/server
+    startCommand: node server/dist/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false # se pone en el panel; nunca en el repositorio
+      - key: JWT_SECRET
+        generateValue: true # Render genera una clave fuerte y la guarda
+      - key: JWT_EXPIRES_IN
+        value: 2h
+      - key: CORS_ORIGINS
+        sync: false
+      - key: BCRYPT_ROUNDS
+        value: 12

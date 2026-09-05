@@ -18,6 +18,7 @@
   --accent-soft: #eef2ff;
   --on-accent: #ffffff;
   --success: #059669;
+  --warning: #b45309;
   --danger: #dc2626;
   --ring: #6366f1;
 }
@@ -35,6 +36,7 @@
   --accent-soft: #262a55;
   --on-accent: #0b1020;
   --success: #34d399;
+  --warning: #fbbf24;
   --danger: #f87171;
   --ring: #8b93f8;
 }
@@ -52,6 +54,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
   --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-ring: var(--ring);
 
@@ -81,4 +84,23 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Entrada de pantalla.
+   Era framer-motion; en CSS cuesta cero bytes y evita cargar la librería de
+   animación entera solo para un fundido. El bloque de prefers-reduced-motion de
+   arriba la deja en 0,01 ms, con lo que el elemento acaba en su estado final. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.3s ease-out both;
 }

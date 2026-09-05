@@ -1,0 +1,29 @@
+{
+  "name": "task-manager",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Gestor de tareas full-stack: React + Express + MongoDB, en TypeScript con esquemas compartidos",
+  "author": "Jose Blondel",
+  "license": "ISC",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently --names api,web --prefix-colors cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run dev --workspace=@task-manager/server",
+    "dev:memory": "concurrently --names api,web --prefix-colors cyan,magenta \"npm run dev:memory --workspace=@task-manager/server\" \"npm:dev:client\"",
+    "dev:client": "npm run dev --workspace=@task-manager/client",
+    "build": "npm run build --workspace=@task-manager/shared && npm run build --workspace=@task-manager/server && npm run build --workspace=@task-manager/client",
+    "test": "npm run test --workspace=@task-manager/server && npm run test --workspace=@task-manager/client",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

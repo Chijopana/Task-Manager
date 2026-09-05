@@ -6,26 +6,13 @@
     <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Gestor de tareas full-stack con autenticación JWT. React, Node.js, Express y MongoDB."
+      content="Gestor de tareas full-stack en TypeScript: fechas de vencimiento, prioridades y etiquetas, con autenticación JWT."
     />
     <meta name="theme-color" content="#4f46e5" />
 
-    <!-- Applies the saved theme before first paint so returning users in dark
-         mode never see a flash of the light one. -->
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem('theme')
-          var dark = stored
-            ? stored === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches
-          if (dark) document.documentElement.classList.add('dark')
-          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
-        } catch (e) {
-          /* storage unavailable, fall back to light */
-        }
-      })()
-    </script>
+    <!-- Fija el tema antes de pintar. Archivo aparte, no en línea: la CSP
+         del despliegue no admite scripts en línea. -->
+    <script src="/theme.js"></script>
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,6 +29,6 @@
     <noscript>
       Esta aplicación necesita JavaScript activado para funcionar.
     </noscript>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

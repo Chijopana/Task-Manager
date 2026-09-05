@@ -27,3 +27,9 @@ pnpm-debug.log*
 Thumbs.db
 *.suo
 *.swp
+
+# Salidas de compilación de TypeScript
+shared/dist/
+server/dist/
+*.tsbuildinfo
+.tmp/
