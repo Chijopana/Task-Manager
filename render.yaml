@@ -13,6 +13,9 @@ services:
     startCommand: node server/dist/index.js
     healthCheckPath: /api/health
     envVars:
+      # Fija la versión para que el servicio no cambie de Node por su cuenta.
+      - key: NODE_VERSION
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
