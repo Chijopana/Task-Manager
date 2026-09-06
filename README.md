@@ -10,8 +10,8 @@ etiquetas.
 > petición puede tardar hasta 30 segundos; la aplicación lo dice en pantalla en
 > lugar de dejar una rueda girando.
 
-> 🔐 Antes de nada, lee [SECURITY.md](SECURITY.md): hay credenciales antiguas en
-> el historial de Git que siguen pendientes de rotar.
+> 🔐 Hubo credenciales en el historial de Git. Están rotadas desde el 6 de
+> septiembre de 2026; el detalle está en [SECURITY.md](SECURITY.md).
 
 ---
 

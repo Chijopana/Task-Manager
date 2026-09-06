@@ -1,52 +1,48 @@
 # Seguridad
 
-## ⚠️ Pendiente y urgente: rotar las credenciales filtradas
+## Credenciales filtradas: rotadas el 6 de septiembre de 2026
 
-Un archivo `.env` con credenciales reales se subió a Git y **sigue siendo
-recuperable en el historial de tres repositorios**. Eliminarlo del árbol de
-trabajo, como ya se hizo, no lo borra del historial ni revoca nada.
+Un archivo `.env` con credenciales reales estuvo versionado y **sigue siendo
+recuperable en el historial** de los repositorios de abajo. Borrarlo del árbol de
+trabajo no lo borra del historial, así que lo único que cierra el agujero de
+verdad es rotar lo filtrado. Eso ya está hecho:
 
-| Repositorio                                          | Commits afectados      | Qué contiene                   |
+| Qué                                     | Estado                                                        |
+| ---------------------------------------- | ------------------------------------------------------------- |
+| Contraseña del usuario de MongoDB Atlas  | Rotada el 2026-09-06                                          |
+| `JWT_SECRET`                             | Regenerado por Render al crear el servicio (`generateValue`)  |
+| `.env` en el árbol de trabajo            | Fuera del repositorio y cubierto por `.gitignore`             |
+
+Regenerar el `JWT_SECRET` invalida todas las sesiones firmadas con el anterior,
+que es justo lo que se busca.
+
+Dónde quedó el archivo, para que conste:
+
+| Repositorio                                          | Commits afectados      | Qué contenía                 |
 | ---------------------------------------------------- | ---------------------- | ------------------------------ |
-| este monorepo (`server/.env`)                        | `55e4f8c`, `b781b2c`   | `MONGO_URI`, `JWT_SECRET`      |
-| `Chijopana/task-manager-backend` (`.env`)            | `bdc91aa`, `f7b605a`   | `MONGO_URI`, `JWT_SECRET`      |
+| este monorepo (`server/.env`)                        | `55e4f8c`, `b781b2c`   | `MONGO_URI` local, `JWT_SECRET`|
+| `Chijopana/task-manager-backend` (`.env`)            | `bdc91aa`, `f7b605a`   | `MONGO_URI` de Atlas, `JWT_SECRET` |
 | `Chijopana/task-manager-front` (`.env`)              | `c815d5c`              | `VITE_API_URL` (bajo riesgo)   |
 
-Cualquiera con acceso de lectura recupera el contenido con un comando:
+El único que llegó a exponer la cadena de conexión de Atlas fue
+`task-manager-backend`; en este monorepo el `.env` versionado apuntaba a
+`mongodb://localhost`. Las credenciales de ambos están ya invalidadas.
 
-```bash
-git show 55e4f8c:server/.env
-```
+### Lo que sigue pendiente
 
-Si alguno de esos repositorios es público, hay que dar las credenciales por
-comprometidas: existen bots que recorren GitHub buscando cadenas de conexión de
-MongoDB Atlas de forma continua, y el tiempo entre publicación y primer intento
-de acceso se mide en minutos.
-
-### Qué hacer, en este orden
-
-1. **Rotar el usuario de MongoDB Atlas.** Cambiar su contraseña, o —mejor—
-   borrar ese usuario de base de datos y crear otro con un nombre distinto.
-2. **Revisar la lista de IPs permitidas en Atlas.** Si está en `0.0.0.0/0`, la
-   cadena filtrada es acceso directo a los datos desde cualquier sitio.
-   Restringirla a las IPs de salida de Render.
-3. **Generar un `JWT_SECRET` nuevo** y ponerlo en Render:
-
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-   ```
-
-   Invalida todas las sesiones abiertas, que es justo lo que se busca. Con
-   `render.yaml` se puede dejar que Render lo genere él (`generateValue: true`).
-4. **Solo después**, si se quiere limpiar el historial:
+1. **Restringir la lista de IPs en Atlas.** Está en `0.0.0.0/0` porque Render no
+   da IPs de salida fijas en plan gratuito. Es una concesión conocida, no un
+   descuido: con la contraseña rotada, el riesgo es aceptable para este
+   proyecto, pero conviene estrecharlo si alguna vez pasa a un plan de pago.
+2. **Archivar `task-manager-backend` y `task-manager-front`.** Ya no se
+   despliegan desde ellos; el monorepo `Task-Manager` es la única fuente.
+3. **Opcional: limpiar el historial.** No es urgente, porque lo filtrado ya no
+   sirve, y los clones existentes conservarían el archivo de todos modos:
 
    ```bash
    git filter-repo --path server/.env --path .env --invert-paths
    git push --force --all
    ```
-
-   Es opcional y secundario. Los clones que ya existan seguirán conteniendo el
-   archivo, así que la rotación es lo único que de verdad cierra el agujero.
 
 ---
 
