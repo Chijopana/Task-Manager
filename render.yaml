@@ -9,7 +9,9 @@ services:
     region: frankfurt
     # El repositorio es un monorepo con workspaces: se instala desde la raíz.
     rootDir: .
-    buildCommand: npm ci && npm run build --workspace=@task-manager/shared && npm run build --workspace=@task-manager/server
+    # --include=dev es imprescindible: NODE_ENV=production haría que npm
+    # omitiese las devDependencies, y TypeScript es una de ellas.
+    buildCommand: npm ci --include=dev && npm run build --workspace=@task-manager/shared && npm run build --workspace=@task-manager/server
     startCommand: node server/dist/index.js
     healthCheckPath: /api/health
     envVars:
